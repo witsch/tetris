@@ -2,50 +2,54 @@ from time import sleep
 from random import choice, random
 
 
-empty = '<! . . . . . . . . . .!>\n'
-end_1 = '<!====================!>\n'
-end_2 = '  ' + '\\/' * 10 + '  '
+start = [2049] * 21 + [4095] * 2
 tiles = (
-    (('XXXX',), ('X', 'X', 'X', 'X')),
-    (('XX.', ' XX'), ('.X', 'XX', 'X ')),
-    (('.XX', 'XX '), ('X.', 'XX', ' X')),
-    (('XXX', '  X'), ('.X', '.X', 'XX'), ('X..', 'XXX'), ('XX', 'X ', 'X ')),
-    (('XXX', 'X  '), ('XX', ' X', ' X'), ('..X', 'XXX'), ('X.', 'X.', 'XX')),
-    (('XXX', ' X '), ('.X', 'XX', ' X'), ('.X.', 'XXX'), ('X.', 'XX', 'X ')),
-    (('XX', 'XX'),))
+    ('0f00', '8888') * 2, ('0660',) * 4,
+    ('0c60', '2640') * 2, ('06c0', '4620') * 2,
+    ('0e80', 'c440', '2e00', '4460'), ('0e20', '44c0', 'c880', '8e00'),
+    ('0e40', '4c40', '4e00', '4640'))
 
 
 def show(board):
     print("\033c", end="\033[A")
-    print(board + end_1 + end_2)
+    fmt = '<!{}!>'.format
+    for line in board[1:-2]:
+        print(fmt(f'{line:>012b}'[1:-1].replace('1', '[]').replace('0', ' .')))
+    print(fmt('=' * 20))
+    print('  ' + '\\/' * 10)
 
 
-def put(tile, x, y):
-    board = empty * 20
+def put(board, tile, x, y):
+    board = list(board)
     for offset, line in enumerate(tile):
-        if y + offset < 20:
-            line = line.replace('X', '[]').replace(' ', '.').replace('.', ' .')
-            index = x + len(empty) * (y + offset)
-            board = board[:index] + line + board[index + len(line):]
+        mask = int(line, 16) << max(7 - x, 0)
+        if mask and board[y + offset] & mask:
+            return
+        board[y + offset] |= mask
     return board
 
 
-def down():
+def down(board):
     tile = choice(tiles)
     orientation = 0
-    x = 5
-    for y in range(20):
-        show(put(tile[orientation], x * 2, y))
+    x = 3
+    for y in range(len(board)):
+        updated = put(board, tile[orientation], x, y)
+        if not updated:
+            return put(board, tile[orientation], x, y - 1)
+        show(updated)
         if random() < 0.3:
-            x = min(11 - len(tile[orientation]), x + 1)
+            if put(board, tile[orientation], x + 1, y):
+                x += 1
         if random() < 0.3:
-            x = max(1, x - 1)
+            if put(board, tile[orientation], x - 1, y):
+                x -= 1
         if random() < 0.15:
-            orientation += 1
-            if orientation >= len(tile):
-                orientation = 0
+            if put(board, tile[(orientation + 1) % 4], x, y):
+                orientation = (orientation + 1) % 4
         sleep(0.2)
 
 
-while True:
-    down()
+board = start
+while board:
+    board = down(board)
