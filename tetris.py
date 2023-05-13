@@ -1,4 +1,5 @@
-from time import sleep
+from curses import wrapper, KEY_LEFT, KEY_RIGHT, KEY_UP, KEY_DOWN
+from time import time
 from random import choice, random
 
 
@@ -10,13 +11,14 @@ tiles = (
     ('0e40', '4c40', '4e00', '4640'))
 
 
-def show(board):
-    print("\033c", end="\033[A")
+def show(board, window):
     fmt = '<!{}!>'.format
-    for line in board[1:-2]:
-        print(fmt(f'{line:>012b}'[1:-1].replace('1', '[]').replace('0', ' .')))
-    print(fmt('=' * 20))
-    print('  ' + '\\/' * 10)
+    for y, line in enumerate(board[1:-2]):
+        line = fmt(f'{line:>012b}'[1:-1].replace('1', '[]').replace('0', ' .'))
+        window.addstr(y, 0, line)
+    window.addstr(y := y + 1, 0, fmt('=' * 20))
+    window.addstr(y := y + 1, 0, '  ' + '\\/' * 10)
+    window.refresh()
 
 
 def put(board, tile, x, y):
@@ -29,27 +31,35 @@ def put(board, tile, x, y):
     return board
 
 
-def down(board):
-    tile = choice(tiles)
-    orientation = 0
-    x = 3
-    for y in range(len(board)):
+def down(board, window, delay):
+    tile, orientation, y, x = choice(tiles), 0, 0, 3
+    stop = time() + delay
+    while True:
         updated = put(board, tile[orientation], x, y)
-        if not updated:
-            return put(board, tile[orientation], x, y - 1)
-        show(updated)
-        if random() < 0.3:
+        show(updated, window)
+        key = window.getch()
+        if key == KEY_RIGHT:
             if put(board, tile[orientation], x + 1, y):
                 x += 1
-        if random() < 0.3:
+        if key == KEY_LEFT:
             if put(board, tile[orientation], x - 1, y):
                 x -= 1
-        if random() < 0.15:
+        if key == KEY_UP:
             if put(board, tile[(orientation + 1) % 4], x, y):
                 orientation = (orientation + 1) % 4
-        sleep(0.2)
+        if time() > stop:
+            if not put(board, tile[orientation], x, y + 1):
+                return updated
+            y += 1
+            stop += delay
 
 
-board = start
-while board:
-    board = down(board)
+def main(stdscr):
+    stdscr.clear()
+    stdscr.timeout(10)
+    board = start
+    while board:
+        board = down(board, window=stdscr, delay=0.2)
+
+
+wrapper(main)
