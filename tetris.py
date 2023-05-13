@@ -44,6 +44,9 @@ def down(board, window, delay):
         if key == KEY_LEFT:
             if put(board, tile[orientation], x - 1, y):
                 x -= 1
+        if key == KEY_DOWN:
+            if put(board, tile[orientation], x, y + 1):
+                y += 1
         if key == KEY_UP:
             if put(board, tile[(orientation + 1) % 4], x, y):
                 orientation = (orientation + 1) % 4
@@ -60,6 +63,9 @@ def main(stdscr):
     board = start
     while board:
         board = down(board, window=stdscr, delay=0.2)
+        while 4095 in board[:-2]:
+            board.remove(4095)
+            board.insert(0, 2049)
 
 
 wrapper(main)
