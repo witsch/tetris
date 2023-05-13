@@ -1,4 +1,5 @@
 from curses import wrapper, KEY_LEFT, KEY_RIGHT, KEY_UP, KEY_DOWN
+from curses import color_pair, init_pair, COLOR_GREEN, COLOR_BLACK
 from time import time
 from random import choice, random
 
@@ -12,12 +13,14 @@ tiles = (
 
 
 def show(board, window):
+    _, cols = window.getmaxyx()
+    x = (cols - 24) // 2
     fmt = '<!{}!>'.format
     for y, line in enumerate(board[1:-2]):
         line = fmt(f'{line:>012b}'[1:-1].replace('1', '[]').replace('0', ' .'))
-        window.addstr(y, 0, line)
-    window.addstr(y := y + 1, 0, fmt('=' * 20))
-    window.addstr(y := y + 1, 0, '  ' + '\\/' * 10)
+        window.addstr(y, x, line, color_pair(1))
+    window.addstr(y := y + 1, x, fmt('=' * 20), color_pair(1))
+    window.addstr(y := y + 1, x, '  ' + '\\/' * 10, color_pair(1))
     window.refresh()
 
 
@@ -58,6 +61,7 @@ def down(board, window, delay):
 
 
 def main(stdscr):
+    init_pair(1, COLOR_GREEN, COLOR_BLACK)
     stdscr.clear()
     stdscr.timeout(10)
     board = start
