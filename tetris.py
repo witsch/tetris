@@ -35,7 +35,7 @@ def put(board, tile, x, y):
 
 
 def down(board, window, delay):
-    tile, orientation, y, x = choice(tiles), 0, 0, 3
+    tile, orientation, y, x = choice(tiles), 0, 0, 6
     stop = time() + delay
     while True:
         updated = put(board, tile[orientation], x, y)
