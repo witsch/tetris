@@ -4,7 +4,7 @@ from time import time
 from random import choice, random
 
 
-start = [2049] * 21 + [4095] * 2
+start = [0xe007] * 21 + [0x1ff8] * 2
 tiles = (
     ('0f00', '4444') * 2, ('0660',) * 4,
     ('0c60', '2640') * 2, ('06c0', '4620') * 2,
@@ -17,7 +17,7 @@ def show(board, window):
     x = (cols - 24) // 2
     fmt = '<!{}!>'.format
     for y, line in enumerate(board[1:-2]):
-        line = fmt(f'{line:>012b}'[1:-1].replace('1', '[]').replace('0', ' .'))
+        line = fmt(f'{line:>014b}'[3:-3].replace('1', '[]').replace('0', ' .'))
         window.addstr(y, x, line, color_pair(1))
     window.addstr(y := y + 1, x, fmt('=' * 20), color_pair(1))
     window.addstr(y := y + 1, x, '  ' + '\\/' * 10, color_pair(1))
@@ -27,7 +27,7 @@ def show(board, window):
 def put(board, tile, x, y):
     board = list(board)
     for offset, line in enumerate(tile):
-        mask = int(line, 16) << max(7 - x, 0)
+        mask = int(line, 16) << x
         if mask and board[y + offset] & mask:
             return
         board[y + offset] |= mask
@@ -41,10 +41,10 @@ def down(board, window, delay):
         updated = put(board, tile[orientation], x, y)
         show(updated, window)
         key = window.getch()
-        if key == KEY_RIGHT:
+        if key == KEY_LEFT:
             if put(board, tile[orientation], x + 1, y):
                 x += 1
-        if key == KEY_LEFT:
+        if key == KEY_RIGHT:
             if put(board, tile[orientation], x - 1, y):
                 x -= 1
         if key == KEY_DOWN:
@@ -67,9 +67,9 @@ def main(stdscr):
     board = start
     while board:
         board = down(board, window=stdscr, delay=0.2)
-        while 4095 in board[:-2]:
-            board.remove(4095)
-            board.insert(0, 2049)
+        while 0xffff in board:
+            board.remove(0xffff)
+            board.insert(0, 0xe007)
 
 
 wrapper(main)
