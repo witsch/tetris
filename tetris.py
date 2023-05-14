@@ -41,18 +41,14 @@ def down(board, window, delay):
         updated = put(board, tile[orientation], x, y)
         show(updated, window)
         key = window.getch()
-        if key == KEY_LEFT:
-            if put(board, tile[orientation], x + 1, y):
-                x += 1
-        if key == KEY_RIGHT:
-            if put(board, tile[orientation], x - 1, y):
-                x -= 1
-        if key == KEY_DOWN:
-            if put(board, tile[orientation], x, y + 1):
-                y += 1
-        if key == KEY_UP:
-            if put(board, tile[(orientation + 1) % 4], x, y):
-                orientation = (orientation + 1) % 4
+        if key == KEY_LEFT and put(board, tile[orientation], x + 1, y):
+            x += 1
+        if key == KEY_RIGHT and put(board, tile[orientation], x - 1, y):
+            x -= 1
+        if key == KEY_DOWN and put(board, tile[orientation], x, y + 1):
+            y += 1
+        if key == KEY_UP and put(board, tile[(orientation + 1) % 4], x, y):
+            orientation = (orientation + 1) % 4
         if time() > stop:
             if not put(board, tile[orientation], x, y + 1):
                 return updated
@@ -67,9 +63,7 @@ def main(stdscr):
     board = start
     while board:
         board = down(board, window=stdscr, delay=0.2)
-        while 0xffff in board:
-            board.remove(0xffff)
-            board.insert(0, 0xe007)
+        board = [0xe007] * board.count(0xffff) + [l for l in board if l != 0xffff]
 
 
 wrapper(main)
