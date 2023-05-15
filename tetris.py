@@ -13,16 +13,18 @@ def main(stdscr):
     pr(20, indent, '<!' + '=' * 20 + '!>', col)
     pr(21, indent, '  ' + '\\/' * 10, col)
     stdscr.timeout(10)
-    board = save = [0xe007] * 21 + [0x1ff8] * 3
+    board, lines = (save := [0xe007] * 21 + [0x1ff8] * 3), 0
     tiles = 0x444400f0444400f0, 0x64400e2044c08e0, 0x88c00e80c4402e0, \
         0x46206c0046206c0, 0x2640c6002640c60, 0x46400e404c404e0, 0x660066006600660
     while board := [0xe007] * save.count(0xffff) + [l for l in save if l != 0xffff]:
         tile, shape, y, x = random.choice(tiles), 0, 0, 6
+        lines += save.count(0xffff)
         stop = time.time() + (delay := 0.2)
         while updated := put(board, tile, shape, x, y):
             for row, line in enumerate(updated[1:-3]):
                 line = f'{line:>014b}'[3:-3].replace('1', '[]').replace('0', ' .')
                 pr(row, indent, f'<!{line}!>', col)
+            pr(23, indent, f'   level: {1 + lines // 10}  lines: {lines}', col)
             key, save = stdscr.getch(), updated
             x += 1 if key == crs.KEY_LEFT and put(board, tile, shape, x+1, y) else 0
             x -= 1 if key == crs.KEY_RIGHT and put(board, tile, shape, x-1, y) else 0
