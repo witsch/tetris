@@ -9,18 +9,6 @@ tiles = (0x444400f0444400f0, 0x64400e2044c08e0, 0x88c00e80c4402e0, 0x46206c00462
          0x02640c6002640c60, 0x046400e404c404e0, 0x0660066006600660)
 
 
-def show(board, window):
-    _, cols = window.getmaxyx()
-    x = (cols - 24) // 2
-    fmt = '<!{}!>'.format
-    for y, line in enumerate(board[1:-3]):
-        line = fmt(f'{line:>014b}'[3:-3].replace('1', '[]').replace('0', ' .'))
-        window.addstr(y, x, line, color_pair(1))
-    window.addstr(y := y + 1, x, fmt('=' * 20), color_pair(1))
-    window.addstr(y := y + 1, x, '  ' + '\\/' * 10, color_pair(1))
-    window.refresh()
-
-
 def put(board, tile, orientation, x, y, four=(0, 1, 2, 3)):
     masks = [(tile >> ((orientation % 4 << 4) + 4 * l) & 0xf) << x for l in four]
     if sum((masks[l] & board[y + l] for l in four)) == 0:
@@ -30,6 +18,9 @@ def put(board, tile, orientation, x, y, four=(0, 1, 2, 3)):
 def main(stdscr):
     init_pair(1, COLOR_GREEN, COLOR_BLACK)
     stdscr.clear()
+    indent = stdscr.getmaxyx()[1] - 24 >> 1
+    stdscr.addstr(20, indent, '<!' + '=' * 20 + '!>', color_pair(1))
+    stdscr.addstr(21, indent, '  ' + '\\/' * 10, color_pair(1))
     stdscr.timeout(10)
     window = stdscr
     board = start
@@ -37,7 +28,9 @@ def main(stdscr):
         tile, orientation, y, x = choice(tiles), 0, 0, 6
         stop = time() + (delay := 0.2)
         while updated := put(board, tile, orientation, x, y):
-            show(updated, window)
+            for row, line in enumerate(updated[1:-3]):
+                line = f'{line:>014b}'[3:-3].replace('1', '[]').replace('0', ' .')
+                stdscr.addstr(row, indent, f'<!{line}!>', color_pair(1))
             key = window.getch()
             if key == KEY_LEFT and put(board, tile, orientation, x + 1, y):
                 x += 1
