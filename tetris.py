@@ -4,7 +4,7 @@ from time import time
 from random import choice, random
 
 
-start = [0xe007] * 21 + [0x1ff8] * 2
+start = [0xe007] * 21 + [0x1ff8] * 3
 tiles = (0x444400f0444400f0, 0x64400e2044c08e0, 0x88c00e80c4402e0, 0x46206c0046206c0,
          0x02640c6002640c60, 0x046400e404c404e0, 0x0660066006600660)
 
@@ -13,7 +13,7 @@ def show(board, window):
     _, cols = window.getmaxyx()
     x = (cols - 24) // 2
     fmt = '<!{}!>'.format
-    for y, line in enumerate(board[1:-2]):
+    for y, line in enumerate(board[1:-3]):
         line = fmt(f'{line:>014b}'[3:-3].replace('1', '[]').replace('0', ' .'))
         window.addstr(y, x, line, color_pair(1))
     window.addstr(y := y + 1, x, fmt('=' * 20), color_pair(1))
