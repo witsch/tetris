@@ -5,11 +5,8 @@ from random import choice, random
 
 
 start = [0xe007] * 21 + [0x1ff8] * 2
-tiles = (
-    ('0f00', '4444') * 2, ('0660',) * 4,
-    ('0c60', '2640') * 2, ('06c0', '4620') * 2,
-    ('0e80', 'c440', '2e00', '4460'), ('0e20', '44c0', '8e00', 'c880'),
-    ('0e40', '4c40', '4e00', '4640'))
+tiles = (0x444400f0444400f0, 0x64400e2044c08e0, 0x88c00e80c4402e0, 0x46206c0046206c0,
+         0x02640c6002640c60, 0x046400e404c404e0, 0x0660066006600660)
 
 
 def show(board, window):
@@ -24,14 +21,10 @@ def show(board, window):
     window.refresh()
 
 
-def put(board, tile, orientation, x, y):
-    board = list(board)
-    for offset, line in enumerate(tile[orientation % 4]):
-        mask = int(line, 16) << x
-        if mask and board[y + offset] & mask:
-            return
-        board[y + offset] |= mask
-    return board
+def put(board, tile, orientation, x, y, four=(0, 1, 2, 3)):
+    masks = [(tile >> ((orientation % 4 << 4) + 4 * l) & 0xf) << x for l in four]
+    if sum((masks[l] & board[y + l] for l in four)) == 0:
+        return board[:y] + [masks[l] | board[y + l] for l in four] + board[y + 4:]
 
 
 def down(board, window, delay):
