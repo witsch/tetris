@@ -1,7 +1,7 @@
 from curses import wrapper, KEY_LEFT, KEY_RIGHT, KEY_UP, KEY_DOWN
 from curses import color_pair, init_pair, COLOR_GREEN, COLOR_BLACK
 from time import time
-from random import choice, random
+from random import choice
 
 
 start = [0xe007] * 21 + [0x1ff8] * 3
