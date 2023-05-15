@@ -38,15 +38,13 @@ def down(board, window, delay):
             x += 1
         if key == KEY_RIGHT and put(board, tile, orientation, x - 1, y):
             x -= 1
-        if key == KEY_DOWN and put(board, tile, orientation, x, y + 1):
-            y += 1
         if key == KEY_UP and put(board, tile, orientation + 1, x, y):
             orientation += 1
-        if time() > stop:
+        if (elapsed := time() > stop) or key == KEY_DOWN:
             if not put(board, tile, orientation, x, y + 1):
                 return updated
             y += 1
-            stop += delay
+            stop += delay if elapsed else 0
 
 
 def main(stdscr):
