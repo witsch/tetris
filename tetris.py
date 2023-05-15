@@ -24,9 +24,9 @@ def show(board, window):
     window.refresh()
 
 
-def put(board, tile, x, y):
+def put(board, tile, orientation, x, y):
     board = list(board)
-    for offset, line in enumerate(tile):
+    for offset, line in enumerate(tile[orientation % 4]):
         mask = int(line, 16) << x
         if mask and board[y + offset] & mask:
             return
@@ -38,19 +38,19 @@ def down(board, window, delay):
     tile, orientation, y, x = choice(tiles), 0, 0, 6
     stop = time() + delay
     while True:
-        updated = put(board, tile[orientation], x, y)
+        updated = put(board, tile, orientation, x, y)
         show(updated, window)
         key = window.getch()
-        if key == KEY_LEFT and put(board, tile[orientation], x + 1, y):
+        if key == KEY_LEFT and put(board, tile, orientation, x + 1, y):
             x += 1
-        if key == KEY_RIGHT and put(board, tile[orientation], x - 1, y):
+        if key == KEY_RIGHT and put(board, tile, orientation, x - 1, y):
             x -= 1
-        if key == KEY_DOWN and put(board, tile[orientation], x, y + 1):
+        if key == KEY_DOWN and put(board, tile, orientation, x, y + 1):
             y += 1
-        if key == KEY_UP and put(board, tile[(orientation + 1) % 4], x, y):
-            orientation = (orientation + 1) % 4
+        if key == KEY_UP and put(board, tile, orientation + 1, x, y):
+            orientation += 1
         if time() > stop:
-            if not put(board, tile[orientation], x, y + 1):
+            if not put(board, tile, orientation, x, y + 1):
                 return updated
             y += 1
             stop += delay
