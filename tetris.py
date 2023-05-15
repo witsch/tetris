@@ -31,30 +31,29 @@ def main(stdscr):
     init_pair(1, COLOR_GREEN, COLOR_BLACK)
     stdscr.clear()
     stdscr.timeout(10)
+    window = stdscr
+    delay = 0.2
     board = start
     while board:
-        board = down(board, window=stdscr, delay=0.2)
         board = [0xe007] * board.count(0xffff) + [l for l in board if l != 0xffff]
-
-
-def down(board, window, delay):
-    tile, orientation, y, x = choice(tiles), 0, 0, 6
-    stop = time() + delay
-    while True:
-        updated = put(board, tile, orientation, x, y)
-        show(updated, window)
-        key = window.getch()
-        if key == KEY_LEFT and put(board, tile, orientation, x + 1, y):
-            x += 1
-        if key == KEY_RIGHT and put(board, tile, orientation, x - 1, y):
-            x -= 1
-        if key == KEY_UP and put(board, tile, orientation + 1, x, y):
-            orientation += 1
-        if (elapsed := time() > stop) or key == KEY_DOWN:
-            if not put(board, tile, orientation, x, y + 1):
-                return updated
-            y += 1
-            stop += delay if elapsed else 0
+        tile, orientation, y, x = choice(tiles), 0, 0, 6
+        stop = time() + delay
+        while True:
+            updated = put(board, tile, orientation, x, y)
+            show(updated, window)
+            key = window.getch()
+            if key == KEY_LEFT and put(board, tile, orientation, x + 1, y):
+                x += 1
+            if key == KEY_RIGHT and put(board, tile, orientation, x - 1, y):
+                x -= 1
+            if key == KEY_UP and put(board, tile, orientation + 1, x, y):
+                orientation += 1
+            if (elapsed := time() > stop) or key == KEY_DOWN:
+                if not put(board, tile, orientation, x, y + 1):
+                    board = updated
+                    break
+                y += 1
+                stop += delay if elapsed else 0
 
 
 wrapper(main)
