@@ -17,12 +17,10 @@ def put(board, tile, orientation, x, y, four=(0, 1, 2, 3)):
 
 def main(stdscr):
     init_pair(1, COLOR_GREEN, COLOR_BLACK)
-    stdscr.clear()
     indent = stdscr.getmaxyx()[1] - 24 >> 1
     stdscr.addstr(20, indent, '<!' + '=' * 20 + '!>', color_pair(1))
     stdscr.addstr(21, indent, '  ' + '\\/' * 10, color_pair(1))
     stdscr.timeout(10)
-    window = stdscr
     board = start
     while board := [0xe007] * board.count(0xffff) + [l for l in board if l != 0xffff]:
         tile, orientation, y, x = choice(tiles), 0, 0, 6
@@ -31,7 +29,7 @@ def main(stdscr):
             for row, line in enumerate(updated[1:-3]):
                 line = f'{line:>014b}'[3:-3].replace('1', '[]').replace('0', ' .')
                 stdscr.addstr(row, indent, f'<!{line}!>', color_pair(1))
-            key = window.getch()
+            key = stdscr.getch()
             if key == KEY_LEFT and put(board, tile, orientation, x + 1, y):
                 x += 1
             if key == KEY_RIGHT and put(board, tile, orientation, x - 1, y):
