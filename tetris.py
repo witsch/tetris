@@ -24,18 +24,13 @@ def main(stdscr):
                 line = f'{line:>014b}'[3:-3].replace('1', '[]').replace('0', ' .')
                 stdscr.addstr(row, indent, f'<!{line}!>', crs.color_pair(1))
             key = stdscr.getch()
-            if key == crs.KEY_LEFT and put(board, tile, shape, x + 1, y):
-                x += 1
-            if key == crs.KEY_RIGHT and put(board, tile, shape, x - 1, y):
-                x -= 1
-            if key == crs.KEY_UP and put(board, tile, shape+1, x, y):
-                shape += 1
-            if (elapsed := time.time() > stop) or key == crs.KEY_DOWN:
-                if not put(board, tile, shape, x, y + 1):
-                    board = updated
-                    break
-                y += 1
-                stop += delay if elapsed else 0
+            x += 1 if key == crs.KEY_LEFT and put(board, tile, shape, x+1, y) else 0
+            x -= 1 if key == crs.KEY_RIGHT and put(board, tile, shape, x-1, y) else 0
+            shape += 1 if key == crs.KEY_UP and put(board, tile, shape+1, x, y) else 0
+            y += 1 if (elapsed := time.time() > stop) or key == crs.KEY_DOWN else 0
+            stop += delay if elapsed else 0
+            if not put(board, tile, shape, x, y):
+                board = updated
 
 
 crs.wrapper(main)
