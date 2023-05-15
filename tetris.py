@@ -27,6 +27,16 @@ def put(board, tile, orientation, x, y, four=(0, 1, 2, 3)):
         return board[:y] + [masks[l] | board[y + l] for l in four] + board[y + 4:]
 
 
+def main(stdscr):
+    init_pair(1, COLOR_GREEN, COLOR_BLACK)
+    stdscr.clear()
+    stdscr.timeout(10)
+    board = start
+    while board:
+        board = down(board, window=stdscr, delay=0.2)
+        board = [0xe007] * board.count(0xffff) + [l for l in board if l != 0xffff]
+
+
 def down(board, window, delay):
     tile, orientation, y, x = choice(tiles), 0, 0, 6
     stop = time() + delay
@@ -45,16 +55,6 @@ def down(board, window, delay):
                 return updated
             y += 1
             stop += delay if elapsed else 0
-
-
-def main(stdscr):
-    init_pair(1, COLOR_GREEN, COLOR_BLACK)
-    stdscr.clear()
-    stdscr.timeout(10)
-    board = start
-    while board:
-        board = down(board, window=stdscr, delay=0.2)
-        board = [0xe007] * board.count(0xffff) + [l for l in board if l != 0xffff]
 
 
 wrapper(main)
