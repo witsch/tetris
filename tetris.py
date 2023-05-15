@@ -32,14 +32,11 @@ def main(stdscr):
     stdscr.clear()
     stdscr.timeout(10)
     window = stdscr
-    delay = 0.2
     board = start
-    while board:
-        board = [0xe007] * board.count(0xffff) + [l for l in board if l != 0xffff]
+    while board := [0xe007] * board.count(0xffff) + [l for l in board if l != 0xffff]:
         tile, orientation, y, x = choice(tiles), 0, 0, 6
-        stop = time() + delay
-        while True:
-            updated = put(board, tile, orientation, x, y)
+        stop = time() + (delay := 0.2)
+        while updated := put(board, tile, orientation, x, y):
             show(updated, window)
             key = window.getch()
             if key == KEY_LEFT and put(board, tile, orientation, x + 1, y):
