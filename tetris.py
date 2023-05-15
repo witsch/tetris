@@ -19,7 +19,7 @@ def main(stdscr):
     while board := [0xe007] * save.count(0xffff) + [l for l in save if l != 0xffff]:
         tile, shape, y, x = random.choice(tiles), 0, 0, 6
         lines += save.count(0xffff)
-        stop = time.time() + (delay := 0.2)
+        stop = time.time() + (delay := max(1 - 0.1 * (lines // 10), 0.1))
         while updated := put(board, tile, shape, x, y):
             for row, line in enumerate(updated[1:-3]):
                 line = f'{line:>014b}'[3:-3].replace('1', '[]').replace('0', ' .')
