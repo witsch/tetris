@@ -9,9 +9,9 @@ def put(board, tile, shape, x, y, four=(0, 1, 2, 3)):
 
 def main(stdscr):
     crs.init_pair(1, crs.COLOR_GREEN, crs.COLOR_BLACK)
-    indent = stdscr.getmaxyx()[1] - 24 >> 1
-    stdscr.addstr(20, indent, '<!' + '=' * 20 + '!>', crs.color_pair(1))
-    stdscr.addstr(21, indent, '  ' + '\\/' * 10, crs.color_pair(1))
+    indent, pr, col = stdscr.getmaxyx()[1] - 24 >> 1, stdscr.addstr, crs.color_pair(1)
+    pr(20, indent, '<!' + '=' * 20 + '!>', col)
+    pr(21, indent, '  ' + '\\/' * 10, col)
     stdscr.timeout(10)
     board = save = [0xe007] * 21 + [0x1ff8] * 3
     tiles = 0x444400f0444400f0, 0x64400e2044c08e0, 0x88c00e80c4402e0, \
@@ -22,7 +22,7 @@ def main(stdscr):
         while updated := put(board, tile, shape, x, y):
             for row, line in enumerate(updated[1:-3]):
                 line = f'{line:>014b}'[3:-3].replace('1', '[]').replace('0', ' .')
-                stdscr.addstr(row, indent, f'<!{line}!>', crs.color_pair(1))
+                pr(row, indent, f'<!{line}!>', col)
             key, save = stdscr.getch(), updated
             x += 1 if key == crs.KEY_LEFT and put(board, tile, shape, x+1, y) else 0
             x -= 1 if key == crs.KEY_RIGHT and put(board, tile, shape, x-1, y) else 0
