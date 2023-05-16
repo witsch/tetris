@@ -1,3 +1,7 @@
+# dear alexey, dear henk,
+# it's not that much, but perhaps 40 lines still kinda fits.
+# in any case thanks for all the fun! from berlin with love.
+
 import curses as crs, random, time
 
 
